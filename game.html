@@ -2,11 +2,11 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tổng Hợp Các Tựa Game</title>
+    <title>SANG'S HUB - MULTIVERSE</title>
     <style>
         /* 1. PHẦN NỀN VÀ KHÔNG GIAN */
         body { 
-            background: #0a0a0a; 
+            background: #050505; 
             color: white; 
             text-align: center; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,15 +14,22 @@
             overflow: hidden;
         }
 
+        h1 {
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            margin-top: 20px;
+        }
+
         #gameCanvas { 
             width: 800px; 
             height: 550px; 
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
-            margin: 20px auto; 
+            background: radial-gradient(circle, #001529 0%, #000 100%); 
+            margin: 10px auto; 
             position: relative; 
             border: 3px solid #00ffff; 
-            box-shadow: 0 0 20px #00ffff; 
+            box-shadow: 0 0 30px #00ffff; 
             overflow: hidden;
+            border-radius: 10px;
         }
 
         /* Hiệu ứng lưới Grid 3D */
@@ -32,11 +39,11 @@
             width: 200%; height: 200%;
             top: -50%; left: -50%;
             background-image: 
-                linear-gradient(#222 1px, transparent 1px),
-                linear-gradient(90deg, #222 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
             transform: perspective(500px) rotateX(60deg);
-            animation: moveGrid 8s linear infinite;
+            animation: moveGrid 5s linear infinite;
             z-index: 0;
         }
 
@@ -45,131 +52,153 @@
             to { background-position: 0 400px; }
         }
 
-        /* 2. NHÂN VẬT KHỐI VUÔNG */
+        /* 2. NHÂN VẬT KHỐI VUÔNG NEON */
         #player { 
-            width: 45px; 
-            height: 45px; 
-            background: #00ff00; 
+            width: 40px; 
+            height: 40px; 
+            background: #fff; 
             position: absolute; 
             z-index: 10; 
-            border-radius: 5px;
-            box-shadow: 0 0 15px #00ff00;
-            transition: 0.1s linear;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #fff, 0 0 40px #0f0;
+            transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #0f0;
         }
 
-        /* 3. CÁC KHỐI GAME & THƠ */
+        /* 3. CÁC KHỐI GAME & PORTAL */
         .block { 
-            width: 70px; 
-            height: 70px; 
+            width: 80px; 
+            height: 80px; 
             position: absolute; 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
             justify-content: center;
-            font-size: 12px; 
+            font-size: 11px; 
             font-weight: bold; 
             color: white;
             z-index: 5;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.2);
-            animation: pulse 2s infinite ease-in-out;
-            text-shadow: 1px 1px 2px black;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            animation: float 3s infinite ease-in-out;
+            text-shadow: 0 0 5px black;
+            cursor: pointer;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
         }
 
         /* Màu riêng cho từng khối */
-        #ba { background: #5bc0de; box-shadow: 0 0 15px #5bc0de; } 
-        #zzz { background: #f0ad4e; box-shadow: 0 0 15px #f0ad4e; } 
-        #rbx { background: #d9534f; box-shadow: 0 0 15px #d9534f; } 
-        #gs { background: #5cb85c; box-shadow: 0 0 15px #5cb85c; }  
-        #ff { background: #0275d8; box-shadow: 0 0 15px #0275d8; }  
-        #tho { background: #9b59b6; box-shadow: 0 0 20px #9b59b6; border: 2px solid #e0b0ff; } /* Khối Thơ */
+        #ba { background: linear-gradient(45deg, #5bc0de, #2e6da4); box-shadow: 0 0 15px #5bc0de; } 
+        #zzz { background: linear-gradient(45deg, #f0ad4e, #d98310); box-shadow: 0 0 15px #f0ad4e; } 
+        #rbx { background: linear-gradient(45deg, #d9534f, #ac2925); box-shadow: 0 0 15px #d9534f; } 
+        #gs { background: linear-gradient(45deg, #5cb85c, #449d44); box-shadow: 0 0 15px #5cb85c; }  
+        #ff { background: linear-gradient(45deg, #0275d8, #014c8c); box-shadow: 0 0 15px #0275d8; }  
+        #tho { background: linear-gradient(45deg, #9b59b6, #8e44ad); box-shadow: 0 0 20px #9b59b6; }
+        
+        /* PORTAL GAME ZOMBIE */
+        #zombie-portal { 
+            background: black;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 0 20px #ff00ff, inset 0 0 15px #ff00ff;
+            animation: portalSpin 2s linear infinite;
+        }
+        @keyframes portalSpin {
+            0% { border-color: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
+            50% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff; }
+            100% { border-color: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
+        }
 
-        /* 4. HỘP THOẠI ZZZ */
+        /* 4. HỘP THOẠI NEON */
         #dialog { 
             display: none; 
             position: absolute; 
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
-            background: rgba(0,0,0,0.95); 
+            background: rgba(0,0,0,0.9); 
             padding: 30px; 
-            border: 2px solid lime; 
-            border-radius: 15px;
+            border: 2px solid #0ff; 
+            border-radius: 20px;
             z-index: 100;
-            min-width: 200px;
+            min-width: 250px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
         }
 
-        .btn-go { background: lime; color: black; border: none; padding: 10px 25px; cursor: pointer; font-weight: bold; border-radius: 5px; }
-        .btn-huy { background: #555; color: white; border: none; padding: 10px 20px; cursor: pointer; margin-right: 10px; border-radius: 5px; }
+        .btn-go { background: #0ff; color: #000; border: none; padding: 12px 30px; cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 16px; }
+        .btn-huy { background: #333; color: white; border: none; padding: 12px 20px; cursor: pointer; margin-right: 10px; border-radius: 8px; }
+        .btn-go:hover { background: #fff; box-shadow: 0 0 20px #0ff; }
     </style>
 </head>
 <body>
 
-    <h1>🚀 WELCOME TO SANG'S HUB 🚀</h1>
-    <p>Di chuyển bằng <b>WASD</b> để khám phá các thế giới!</p>
+    <h1>🌌 SANG SYSTEM - MULTIVERSE 🌌</h1>
+    <p>Điều khiển <b>WASD</b> để du hành qua các cổng không gian!</p>
 
     <div id="gameCanvas">
-        <div id="player" style="top: 250px; left: 375px;"></div>
+        <div id="player" style="top: 255px; left: 380px;"></div>
         
-        <div class="block" id="ba" style="top: 50px; left: 80px;" data-link="https://bluearchive.nexon.com" data-name="BLUE ARCHIVE">BLUE</div>
-        <div class="block" id="zzz" style="top: 50px; left: 650px;" data-link="https://zenless.hoyoverse.com" data-name="ZZZ">ZZZ</div>
-        <div class="block" id="rbx" style="top: 240px; left: 150px;" data-link="https://www.roblox.com" data-name="ROBLOX">ROBLOX</div>
-        <div class="block" id="gs" style="top: 430px; left: 80px;" data-link="https://genshin.hoyoverse.com" data-name="GENSHIN">GENSHIN</div>
-        <div class="block" id="ff" style="top: 430px; left: 650px;" data-link="https://ff.garena.vn" data-name="FREE FIRE">FREE FIRE</div>
-        
-        <div class="block" id="tho" style="top: 240px; left: 600px;" data-link="tho.html" data-name="GÓC THƠ CA">THƠ ✍️</div>
+        <div class="block" id="ba" style="top: 50px; left: 100px;" data-link="https://bluearchive.nexon.com" data-name="BLUE ARCHIVE">BLUE</div>
+        <div class="block" id="zzz" style="top: 50px; left: 620px;" data-link="https://zenless.hoyoverse.com" data-name="ZZZ">ZZZ</div>
+        <div class="block" id="rbx" style="top: 235px; left: 100px;" data-link="https://www.roblox.com" data-name="ROBLOX">ROBLOX</div>
+        <div class="block" id="gs" style="top: 420px; left: 100px;" data-link="https://genshin.hoyoverse.com" data-name="GENSHIN">GENSHIN</div>
+        <div class="block" id="ff" style="top: 420px; left: 620px;" data-link="https://ff.garena.vn" data-name="FREE FIRE">FREE FIRE</div>
+        <div class="block" id="tho" style="top: 235px; left: 620px;" data-link="tho.html" data-name="GÓC THƠ CA">THƠ ✍️</div>
+
+        <div class="block" id="zombie-portal" style="top: 400px; left: 360px;" data-link="game2.html" data-name="ZOMBIE SURVIVAL 🧟">ZOMBIE<br>GAME</div>
 
         <div id="dialog">
-            <h2 style="color: yellow; margin-top: 0;">ZZZ...</h2>
+            <h2 id="dialog-title" style="color: #0ff; margin-top: 0;">DỊCH CHUYỂN?</h2>
             <p id="dialog-subtext">Mày muốn đi đâu đó?</p>
             <div style="margin-top: 20px;">
                 <button class="btn-huy" onclick="dongDialog()">HỦY</button>
-                <button class="btn-go" id="btn-confirm">GOOOO!</button>
+                <button class="btn-go" id="btn-confirm">NHẢY!</button>
             </div>
         </div>
     </div>
 
     <script>
-        let pX = 375; let pY = 250;
+        let pX = 380; let pY = 255;
         const player = document.getElementById('player');
         const dialog = document.getElementById('dialog');
         let currentTarget = "";
+        let isPaused = false;
 
-        // Lắng nghe phím WASD
         window.addEventListener('keydown', (e) => {
+            if (isPaused) return;
             let key = e.key.toLowerCase();
-            const step = 20; // Tốc độ di chuyển
+            const step = 25;
 
-            if(key === "w") pY -= step;
-            if(key === "s") pY += step;
-            if(key === "a") pX -= step;
-            if(key === "d") pX += step;
+            if(key === "w" && pY > 10) pY -= step;
+            if(key === "s" && pY < 500) pY += step;
+            if(key === "a" && pX > 10) pX -= step;
+            if(key === "d" && pX < 750) pX += step;
 
-            // Cập nhật vị trí
             player.style.left = pX + "px";
             player.style.top = pY + "px";
 
-            // Kiểm tra va chạm với các khối
+            checkCollision();
+        });
+
+        function checkCollision() {
             const blocks = document.querySelectorAll('.block');
             blocks.forEach(block => {
                 let bX = parseInt(block.style.left);
                 let bY = parseInt(block.style.top);
 
-                // Tính khoảng cách va chạm
-                if (Math.abs(pX - bX) < 45 && Math.abs(pY - bY) < 45) {
+                // Va chạm nhạy hơn
+                if (Math.abs(pX - bX) < 55 && Math.abs(pY - bY) < 55) {
                     currentTarget = block.getAttribute('data-link');
-                    document.getElementById('dialog-subtext').innerText = "Vào " + block.getAttribute('data-name') + " chứ?";
+                    document.getElementById('dialog-subtext').innerText = "Vào " + block.getAttribute('data-name') + " chứ Sang?";
                     moDialog();
                 }
             });
-        });
+        }
 
         function moDialog() {
+            isPaused = true;
             dialog.style.display = "block";
-            // Gán sự kiện cho nút GO khi hộp thoại hiện ra
             document.getElementById('btn-confirm').onclick = function() {
                 window.location.href = currentTarget;
             };
@@ -177,10 +206,17 @@
 
         function dongDialog() {
             dialog.style.display = "none";
-            // Đẩy nhân vật ra xa một chút để không bị kẹt va chạm liên tục
-            pX -= 50;
+            isPaused = false;
+            // Đẩy nhẹ ra để không dính va chạm lại ngay
+            pX = 380; pY = 255;
             player.style.left = pX + "px";
+            player.style.top = pY + "px";
         }
     </script>
 </body>
+</html>
+        }
+    </script>
+</body>
+
 </html>
