@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Trẻ Em</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            background: #000; /* Nền đen tuyệt đối */
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            color: #0f0; /* Chữ màu xanh neon */
+        }
+
+        /* Canvas cho hiệu ứng sao bay */
+        #starCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative; z-index: 10;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4em;
+            letter-spacing: 10px;
+            text-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
+            margin: 0;
+            animation: flicker 2s infinite;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #fff;
+            margin: 20px 0 40px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .btn-enter {
+            color: #0f0;
+            text-decoration: none;
+            border: 2px solid #0f0;
+            padding: 15px 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: 0.4s;
+            box-shadow: 0 0 15px #0f0;
+            background: transparent;
+        }
+
+        .btn-enter:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 50px #0f0;
+            cursor: pointer;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            95% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starCanvas"></canvas>
+
+    <div class="content">
+        <h1>SANG SYSTEM</h1>
+        <p>INITIALIZING MULTIVERSE...</p>
+        <a href="game.html" class="btn-enter">CONNECT</a>
+    </div>
+
+    <script>
+        // Hiệu ứng Starfield (Ngôi sao bay vào màn hình)
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 3 + 1
+            });
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                s.y += s.speed; // Sao rơi từ trên xuống
+                if (s.y > canvas.height) s.y = 0;
+            });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+    </script>
+
+</body>
+</html>
