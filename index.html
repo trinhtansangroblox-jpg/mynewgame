@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Game Trẻ Em</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANG SYSTEM - MULTIVERSE</title>
     <style>
         body {
             margin: 0; padding: 0; height: 100vh;
-            background: #000; /* Nền đen tuyệt đối */
+            background: #000;
             display: flex; justify-content: center; align-items: center;
             font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
-            color: #0f0; /* Chữ màu xanh neon */
+            color: #0f0;
         }
 
-        /* Canvas cho hiệu ứng sao bay */
         #starCanvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
@@ -21,47 +21,49 @@
         .content {
             position: relative; z-index: 10;
             text-align: center;
+            width: 90%; /* Để không bị sát mép màn hình */
         }
 
         h1 {
-            font-size: 4em;
-            letter-spacing: 10px;
+            /* Dùng vw để chữ tự to theo chiều rộng màn hình */
+            font-size: clamp(2.5rem, 8vw, 5rem); 
+            letter-spacing: 5px;
             text-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
             margin: 0;
             animation: flicker 2s infinite;
         }
 
         p {
-            font-size: 1.2em;
+            font-size: clamp(1rem, 3vw, 1.5rem);
             color: #fff;
             margin: 20px 0 40px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .btn-enter {
             color: #0f0;
             text-decoration: none;
             border: 2px solid #0f0;
-            padding: 15px 50px;
-            font-size: 1.5em;
+            padding: 15px 40px;
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
             font-weight: bold;
             transition: 0.4s;
             box-shadow: 0 0 15px #0f0;
-            background: transparent;
+            background: rgba(0, 0, 0, 0.5); /* Nền hơi tối cho dễ đọc */
+            display: inline-block;
         }
 
         .btn-enter:hover {
             background: #0f0;
             color: #000;
             box-shadow: 0 0 50px #0f0;
-            cursor: pointer;
+            transform: scale(1.1);
         }
 
         @keyframes flicker {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-            95% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
@@ -76,35 +78,57 @@
     </div>
 
     <script>
-        // Hiệu ứng Starfield (Ngôi sao bay vào màn hình)
         const canvas = document.getElementById('starCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        
+        let width, height, stars = [];
+        const numStars = 400; // Tăng số lượng sao cho dày
 
-        let stars = [];
-        for (let i = 0; i < 200; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 2,
-                speed: Math.random() * 3 + 1
-            });
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * width - width/2,
+                    y: Math.random() * height - height/2,
+                    z: Math.random() * width,
+                    o: Math.random() // Độ sáng ngẫu nhiên
+                });
+            }
         }
 
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#fff';
-            stars.forEach(s => {
+        function draw() {
+            // Tạo hiệu ứng vệt mờ (motion blur)
+            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = "#fff";
+            for (let i = 0; i < numStars; i++) {
+                let s = stars[i];
+                
+                // Thuật toán bay 3D từ tâm
+                let x = s.x * (width / s.z);
+                let y = s.y * (width / s.z);
+                let size = (1 - s.z / width) * 3;
+                
                 ctx.beginPath();
-                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.arc(x + width/2, y + height/2, size, 0, Math.PI * 2);
                 ctx.fill();
-                s.y += s.speed; // Sao rơi từ trên xuống
-                if (s.y > canvas.height) s.y = 0;
-            });
-            requestAnimationFrame(drawStars);
+
+                s.z -= 5; // Tốc độ bay vào
+                if (s.z <= 0) {
+                    s.z = width; // Reset sao khi bay quá màn hình
+                }
+            }
+            requestAnimationFrame(draw);
         }
-        drawStars();
+
+        window.addEventListener('resize', init);
+        init();
+        draw();
     </script>
 
 </body>
