@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIANG HỒ HỘI QUÁN - GIANG HỒ THƠ</title>
+    <style>
+        body { margin: 0; background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* PHẦN XEM THƠ */
+        .top-display { flex: 1; border-bottom: 2px solid #333; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; background: #000; }
+        #outputPoem { width: 100%; max-width: 600px; color: #fff; text-shadow: 0 0 5px #0f0; font-size: 1.2rem; }
+        .poem-item { border-bottom: 1px dashed #222; padding: 15px 0; white-space: pre-wrap; line-height: 1.6; }
+        
+        /* PHẦN CHỖ VIẾT THƠ */
+        .bottom-input { height: 220px; background: #0a0a0a; padding: 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 -5px 15px rgba(0,250,0,0.1); }
+        .label { font-size: 0.7rem; color: #444; letter-spacing: 2px; }
+        textarea { flex: 1; background: #000; color: #0f0; border: 1px solid #222; padding: 10px; outline: none; resize: none; font-size: 1rem; }
+        button { background: #0f0; color: #000; border: none; padding: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        button:hover { background: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="top-display">
+        <div class="label">---LƯU VẠN NĂM SAU ---</div>
+        <div id="outputPoem">Đang kết nối với mây...</div>
+    </div>
+
+    <div class="bottom-input">
+        <div class="label">ĐI QUA XIN ĐỂ LẠI 1 BÀI THƠ CHO HẬU THẾ </div>
+        <textarea id="inputPoem" placeholder="Viết gì đó để lưu lại thiên cổ..."></textarea>
+        <button onclick="upload()">KHẮC GHI VĨNH VIỄN</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCnxzjURrnNdxZ9w-yvl3XFfjowiU8XtJg",
+  authDomain: "sangsystem-2cc0f.firebaseapp.com",
+  databaseURL: "https://sangsystem-2cc0f-default-rtdb.firebaseio.com",
+  projectId: "sangsystem-2cc0f",
+  storageBucket: "sangsystem-2cc0f.firebasestorage.app",
+  messagingSenderId: "943910828204",
+  appId: "1:943910828204:web:87734f247624759d198709",
+  measurementId: "G-4KK386D5LH"
+};
+
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+
+      // LẤY DỮ LIỆU VÀ HIỆN DANH SÁCH
+      database.ref('allPoems').on('value', (snapshot) => {
+          const output = document.getElementById('outputPoem');
+          output.innerHTML = ""; 
+          
+          snapshot.forEach((childSnapshot) => {
+              const item = childSnapshot.val();
+              output.innerHTML += `<div class="poem-item">${item}</div>`;
+          });
+          
+          // Cuộn xuống bài mới nhất
+          const display = document.querySelector('.top-display');
+          display.scrollTop = display.scrollHeight;
+      });
+
+      // HÀM LƯU BÀI MỚI (KHÔNG GHI ĐÈ)
+      function upload() {
+          const content = document.getElementById('inputPoem').value;
+          if(content.trim() !== "") {
+              database.ref('allPoems').push(content) 
+              .then(() => {
+                  document.getElementById('inputPoem').value = ""; 
+              })
+              .catch((error) => alert("Lỗi: " + error.message));
+          }
+      }
+    </script>
+</body>
+</html>
