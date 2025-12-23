@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SANG GALAXY - ZOMBIE NEON</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Courier New', monospace; }
+        canvas { border: 4px solid #0ff; background: #00050a; cursor: crosshair; box-shadow: 0 0 20px #0ff; }
+        
+        /* CHỮ NEON CHO UI */
+        .ui { position: absolute; top: 15px; color: #0ff; font-size: 24px; font-weight: bold; pointer-events: none; z-index: 10; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
+        
+        #gameOverScreen {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.9); padding: 40px; border: 5px solid #f0f; text-align: center; z-index: 100;
+            box-shadow: 0 0 50px #f0f;
+        }
+        #gameOverScreen h1 { color: #f0f; font-size: 50px; margin: 0; text-shadow: 0 0 20px #f0f; }
+        #gameOverScreen p { color: #fff; font-size: 20px; margin: 20px 0; }
+        #gameOverScreen button { 
+            background: #f0f; color: white; border: none; padding: 15px 30px; font-size: 20px; 
+            cursor: pointer; font-weight: bold; text-shadow: 0 0 5px #fff; box-shadow: 0 0 10px #f0f;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui">HP: <span id="hp">100</span> | SCORE: <span id="score">0</span></div>
+    
+    <div id="gameOverScreen">
+        <h1>GAME OVER</h1>
+        <p id="deathReason"></p>
+        <button onclick="location.reload()">HỒI SINH</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 1000;
+        canvas.height = 500;
+
+        // 1. HIỆU ỨNG VŨ TRỤ (STARS)
+        let stars = [];
+        for(let i = 0; i < 100; i++) {
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.2 });
+        }
+
+        let player = { x: 200, y: 410, w: 40, h: 40, dy: 0, jump: 13, gravity: 0.7, hp: 100, isGrounded: false };
+        let shadow = { x: 20, y: 410, w: 50, h: 50 }; 
+        let obstacles = [];
+        let zombies = [];
+        let bullets = [];
+        let score = 0;
+        let gameActive = true;
+        let gameSpeed = 6;
+
+        // ĐIỀU KHIỂN
+        window.onkeydown = (e) => { if (e.code === "Space" && player.isGrounded) { player.dy = -player.jump; player.isGrounded = false; } };
+        window.onmousedown = (e) => {
+            if (!gameActive) return;
+            const rect = canvas.getBoundingClientRect();
+            const angle = Math.atan2((e.clientY - rect.top) - (player.y + 20), (e.clientX - rect.left) - (player.x + 20));
+            bullets.push({ x: player.x + 20, y: player.y + 20, vx: Math.cos(angle) * 12, vy: Math.sin(angle) * 12 });
+        };
+
+        function spawn() {
+            if (!gameActive) return;
+            if (Math.random() < 0.012) obstacles.push({ x: canvas.width, y: 410, w: 40, h: 50 });
+            if (Math.random() < 0.025) zombies.push({ x: canvas.width, y: 410, w: 35, h: 40 });
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // Di chuyển sao (Vũ trụ trôi)
+            stars.forEach(s => { s.x -= s.speed; if(s.x < 0) s.x = canvas.width; });
+
+            player.y += player.dy;
+            player.dy += player.gravity;
+            if (player.y >= 410) { player.y = 410; player.dy = 0; player.isGrounded = true; }
+
+            spawn();
+
+            obstacles.forEach((o, i) => { 
+                o.x -= gameSpeed; 
+                if (player.x < o.x + o.w && player.x + player.w > o.x && player.y < o.y + o.h && player.y + player.h > o.y) player.x = o.x - player.w;
+                if (o.x < -100) obstacles.splice(i, 1);
+            });
+
+            zombies.forEach((z, i) => { 
+                z.x -= gameSpeed + 2; 
+                if (player.x < z.x + z.w && player.x + player.w > z.x && player.y < z.y + z.h && player.y + player.h > z.y) { player.hp -= 20; zombies.splice(i, 1); }
+            });
+
+            let targetShadowX = player.x - 180; 
+            shadow.x += (shadow.x < targetShadowX) ? 3 : -1;
+
+            if (player.x < shadow.x + shadow.w && player.x + player.w > shadow.x && player.y < shadow.y + shadow.h && player.y + player.h > shadow.y) endGame("HỐ ĐEN SÁT THỦ ĐÃ NUỐT CHỬNG BẠN!");
+
+            bullets.forEach((b, i) => { 
+                b.x += b.vx; b.y += b.vy; 
+                zombies.forEach((z, zi) => { if (b.x > z.x && b.x < z.x + z.w && b.y > z.y && b.y < z.y + z.h) { zombies.splice(zi, 1); bullets.splice(i, 1); score += 10; } });
+            });
+
+            document.getElementById("hp").innerText = Math.floor(player.hp);
+            document.getElementById("score").innerText = score;
+            if (player.hp <= 0) endGame("CẠN NĂNG LƯỢNG!");
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ sao lấp lánh
+            ctx.fillStyle = "white";
+            stars.forEach(s => ctx.fillRect(s.x, s.y, s.size, s.size));
+
+            // Vẽ đất (Kiểu đường hầm vũ trụ)
+            ctx.fillStyle = "#001a33"; ctx.fillRect(0, 450, canvas.width, 50);
+            ctx.strokeStyle = "#0ff"; ctx.strokeRect(0, 450, canvas.width, 1);
+
+            // Vật cản & Zombie Neon
+            obstacles.forEach(o => { ctx.fillStyle = "#555"; ctx.fillRect(o.x, o.y, o.w, o.h); ctx.strokeStyle = "#fff"; ctx.strokeRect(o.x, o.y, o.w, o.h); });
+            zombies.forEach(z => { ctx.fillStyle = "#0f0"; ctx.shadowBlur = 10; ctx.shadowColor = "#0f0"; ctx.fillRect(z.x, z.y, z.w, z.h); ctx.shadowBlur = 0; });
+
+            // Sát thủ tím (Shadow)
+            ctx.fillStyle = "#f0f"; ctx.shadowBlur = 20; ctx.shadowColor = "#f0f";
+            ctx.fillRect(shadow.x, player.y, shadow.w, shadow.h); ctx.shadowBlur = 0;
+
+            // Player Neon
+            ctx.fillStyle = "#fff"; ctx.shadowBlur = 15; ctx.shadowColor = "#0ff";
+            ctx.fillRect(player.x, player.y, player.w, player.h); ctx.shadowBlur = 0;
+
+            // Bullets Neon
+            ctx.fillStyle = "#ff0"; bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill(); });
+        }
+
+        function endGame(msg) { gameActive = false; document.getElementById("gameOverScreen").style.display = "block"; document.getElementById("deathReason").innerText = msg; }
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+        loop();
+    </script>
+</body>
+</html>
